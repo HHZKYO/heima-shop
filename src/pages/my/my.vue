@@ -4,9 +4,9 @@ import { http } from '@/utils/http'
 
 const memberStore = useMemberStore()
 const getdata = async () => {
-  const res = await http<string[]>({
+  const res = await http<number[]>({
     method: 'GET',
-    url: '/home/banner',
+    url: '',
     header: {},
   })
   console.log('请求成功', res)
