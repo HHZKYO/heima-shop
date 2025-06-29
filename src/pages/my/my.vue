@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useMemberStore } from '@/stores'
-import '@/utils/http'
+import { http } from '@/utils/http'
 
 const memberStore = useMemberStore()
-const getdata = () => {
-  uni.request({
-    url: '/home/banner',
+const getdata = async () => {
+  const res = await http<string[]>({
     method: 'GET',
+    url: '/home/banner',
     header: {},
   })
+  console.log('请求成功', res)
 }
 </script>
 

@@ -25,10 +25,41 @@ const httpInterceptor = {
     if (token) {
       options.header.Authorization = token
     }
-    console.log('请求拦截器', options)
   },
 }
 // 拦截 request 请求
 uni.addInterceptor('request', httpInterceptor)
 // 拦截 uploadFile 文件上传
 uni.addInterceptor('uploadFile', httpInterceptor)
+
+/**
+ * 封装请求函数
+ * @param  UniApp.RequestOptions
+ * @returns Promise
+ *  1. 返回 Promise 对象
+ *  2. 获取数据成功
+ *    2.1 提取核心数据 res.data
+ *    2.2 添加类型，支持泛型
+ *  3. 获取数据失败
+ *    3.1 401错误  -> 清理用户信息，跳转到登录页
+ *    3.2 其他错误 -> 根据后端错误信息轻提示
+ *    3.3 网络错误 -> 提示用户换网络
+ */
+type Data<T> = {
+  code: string
+  msg: string
+  result: T
+}
+// 给http添加类型支持泛型
+export const http = <T>(options: UniApp.RequestOptions) => {
+  return new Promise<Data<T>>((resolve, reject) => {
+    uni.request({
+      ...options,
+      success(res) {
+        // 如果请求成功，返回数据
+        // 提取核心数据res.data
+        resolve(res.data as Data<T>)
+      },
+    })
+  })
+}
