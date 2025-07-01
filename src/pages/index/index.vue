@@ -2,11 +2,14 @@
 //
 import CustomNavbar from './components/CustomNavbar.vue'
 import { getHomeBannerAPI } from '@/services/home'
+import type { BannerItem } from '@/types/home'
 import { onLoad } from '@dcloudio/uni-app'
+import { ref } from 'vue'
 
+const bannerList = ref<BannerItem[]>([])
 const getHomeBannerListData = async () => {
   const res = await getHomeBannerAPI()
-  console.log(res)
+  bannerList.value = res.result
 }
 
 onLoad(() => {
@@ -18,7 +21,7 @@ onLoad(() => {
   <!-- 自定义导航栏 -->
   <CustomNavbar />
   <!-- 自定义轮播图 -->
-  <XtxSwiper />
+  <XtxSwiper :list="bannerList" />
 </template>
 
 <style lang="scss">
