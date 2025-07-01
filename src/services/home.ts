@@ -1,5 +1,5 @@
 // import type { BannerItem } from '@/types/home'
-import type { BannerItem, CategoryItem } from '@/types/home'
+import type { BannerItem, CategoryItem, HotItem } from '@/types/home'
 import { http } from '@/utils/http'
 
 /**
@@ -23,5 +23,16 @@ export const getHomeCategoryMutliAPI = () => {
   return http<CategoryItem[]>({
     method: 'GET',
     url: '/home/category/mutli',
+  })
+}
+
+/**
+ * 首页-热门推荐
+ * @returns
+ */
+export const getHomeHotAPI = () => {
+  return http<HotItem[]>({
+    method: 'GET',
+    url: '/home/hot/mutli',
   })
 }
