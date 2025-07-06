@@ -1,5 +1,6 @@
 // import type { BannerItem } from '@/types/home'
-import type { BannerItem, CategoryItem, HotItem } from '@/types/home'
+import type { PageResult } from '@/types/global'
+import type { BannerItem, CategoryItem, GuessItem, HotItem } from '@/types/home'
 import { http } from '@/utils/http'
 
 /**
@@ -42,7 +43,7 @@ export const getHomeHotAPI = () => {
  * @returns
  */
 export const getHomeGoodsGuessLikeAPI = () => {
-  return http({
+  return http<PageResult<GuessItem>>({
     method: 'GET',
     url: '/home/goods/guessLike',
   })
