@@ -9,16 +9,30 @@ const pageParams: Required<PageParams> = {
   page: 1,
   pageSize: 10,
 }
+// 标记是否已结束
+const finished = ref(false)
 
 // 猜你喜欢列表
 const guessLikeList = ref<GuessItem[]>([])
 // 获取猜你喜欢数据
 const getHomeGoodsGuessLikeData = async () => {
+  // 如果已结束，则退出函数并提示用户
+  if (finished.value) {
+    return uni.showToast({
+      title: '没有更多数据了',
+      icon: 'none',
+    })
+  }
   const res = await getHomeGoodsGuessLikeAPI(pageParams)
   // 数组追加
   guessLikeList.value.push(...res.result.items)
-  // 页码加一
-  pageParams.page++
+  // 追加分页条件
+  if (pageParams.page < res.result.pages) {
+    // 页码加一
+    pageParams.page++
+  } else {
+    finished.value = true
+  }
 }
 
 // 组件挂载完毕
@@ -52,7 +66,7 @@ defineExpose({
       </view>
     </navigator>
   </view>
-  <view class="loading-text"> 正在加载... </view>
+  <view class="loading-text"> {{ finished ? '已经到底了~' : '正在加载...' }} </view>
 </template>
 
 <style lang="scss">
