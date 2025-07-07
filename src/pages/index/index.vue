@@ -40,6 +40,14 @@ const onScrolltolower = () => {
   guessRef.value?.getMore()
 }
 
+// 下拉刷新
+const requestFlag = ref(false)
+const handleRefresh = async () => {
+  requestFlag.value = true
+  await Promise.all([getHomeBannerListData(), getHomeCategoryMutliData(), getHomeHotData()])
+  requestFlag.value = false
+}
+
 onLoad(() => {
   getHomeBannerListData()
   getHomeCategoryMutliData()
@@ -51,7 +59,14 @@ onLoad(() => {
   <!-- 自定义导航栏 -->
   <CustomNavbar />
   <!-- 滚动容器 -->
-  <scroll-view class="scroll-view" scroll-y @scrolltolower="onScrolltolower">
+  <scroll-view
+    :refresher-enabled="true"
+    @refresherrefresh="handleRefresh"
+    :refresher-triggered="requestFlag"
+    class="scroll-view"
+    scroll-y
+    @scrolltolower="onScrolltolower"
+  >
     <!-- 自定义轮播图 -->
     <XtxSwiper :list="bannerList" />
     <!-- 分类面板 -->
