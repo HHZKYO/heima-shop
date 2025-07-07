@@ -9,6 +9,14 @@ const pageParams: Required<PageParams> = {
   page: 1,
   pageSize: 10,
 }
+
+// 重置数据
+const restData = () => {
+  pageParams.page = 1
+  guessLikeList.value = []
+  finished.value = false
+}
+
 // 标记是否已结束
 const finished = ref(false)
 
@@ -43,6 +51,7 @@ onMounted(() => {
 // 暴露方法
 defineExpose({
   getMore: getHomeGoodsGuessLikeData,
+  restData,
 })
 </script>
 

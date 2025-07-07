@@ -44,7 +44,15 @@ const onScrolltolower = () => {
 const requestFlag = ref(false)
 const handleRefresh = async () => {
   requestFlag.value = true
-  await Promise.all([getHomeBannerListData(), getHomeCategoryMutliData(), getHomeHotData()])
+  // 重置猜你喜欢数据
+  guessRef.value?.restData()
+  // 重新获取数据
+  await Promise.all([
+    getHomeBannerListData(),
+    getHomeCategoryMutliData(),
+    getHomeHotData(),
+    guessRef.value?.getMore(), // 重新获取猜你喜欢数据
+  ])
   requestFlag.value = false
 }
 
