@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getHotRecommendAPI } from '@/services/hot'
-import type { HotResult, SubTypeItem } from '@/types/hot'
+import type { SubTypeItem } from '@/types/hot'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
@@ -24,14 +24,17 @@ uni.setNavigationBarTitle({ title: currUrlMap!.title })
 // 定义热门推荐封面图
 const bannerPicture = ref('')
 // 定义热门推荐选项
-const subTypes = ref<SubTypeItem[]>([])
+const subTypes = ref<(SubTypeItem & { finished?: boolean })[]>([])
 // 定义当前选中下标
 const activeIndex = ref(0)
 
 // 获取热门推荐数据
 const getHotRecommendData = async () => {
-  const res = await getHotRecommendAPI(currUrlMap!.url)
-  console.log('热门推荐数据', res)
+  const res = await getHotRecommendAPI(currUrlMap!.url, {
+    page: import.meta.env.DEV ? 32 : 1,
+    pageSize: 10,
+  })
+  // console.log('热门推荐数据', res)
   bannerPicture.value = res.result.bannerPicture
   subTypes.value = res.result.subTypes
 }
@@ -40,8 +43,18 @@ const getHotRecommendData = async () => {
 const onScrolltolower = async () => {
   // 获取当前项
   const currSubTypes = subTypes.value[activeIndex.value]
-  // 当前项的页码加一
-  currSubTypes.goodsItems.page++
+  // 分页条件
+  if (currSubTypes.goodsItems.page < currSubTypes.goodsItems.pages) {
+    // 当前项的页码加一
+    currSubTypes.goodsItems.page++
+  } else {
+    // 标记已结束
+    currSubTypes.finished = true
+    return uni.showToast({
+      title: '没有更多数据了',
+      icon: 'none',
+    })
+  }
   // 调用并传参
   const res = await getHotRecommendAPI(currUrlMap!.url, {
     page: currSubTypes.goodsItems.page,
@@ -101,7 +114,7 @@ onLoad(() => {
           </view>
         </navigator>
       </view>
-      <view class="loading-text">正在加载...</view>
+      <view class="loading-text">{{ item.finished ? '已经到底啦~' : '正在加载...' }}</view>
     </scroll-view>
   </view>
 </template>
