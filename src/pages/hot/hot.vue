@@ -36,6 +36,24 @@ const getHotRecommendData = async () => {
   subTypes.value = res.result.subTypes
 }
 
+// 下拉底部刷新数据
+const onScrolltolower = async () => {
+  // 获取当前项
+  const currSubTypes = subTypes.value[activeIndex.value]
+  // 当前项的页码加一
+  currSubTypes.goodsItems.page++
+  // 调用并传参
+  const res = await getHotRecommendAPI(currUrlMap!.url, {
+    page: currSubTypes.goodsItems.page,
+    pageSize: currSubTypes.goodsItems.pageSize,
+    subType: currSubTypes.id,
+  })
+  // 提取新数据
+  const newSubTypes = res.result.subTypes[activeIndex.value]
+  // 给当前数组追加数据
+  currSubTypes.goodsItems.items.push(...newSubTypes.goodsItems.items)
+}
+
 onLoad(() => {
   getHotRecommendData()
 })
@@ -65,6 +83,7 @@ onLoad(() => {
       :key="item.id"
       scroll-y
       class="scroll-view"
+      @scrolltolower="onScrolltolower()"
     >
       <view class="goods">
         <navigator
