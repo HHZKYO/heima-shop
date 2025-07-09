@@ -19,7 +19,7 @@ const categoryList = ref<CategoryTopItem[]>([])
 const activeIndex = ref(0) // 当前选中分类的索引
 const getCategoryTopData = async () => {
   const res = await getCategoryTopAPI()
-  console.log('商品分类数据', res.result)
+  // console.log('商品分类数据', res.result)
   categoryList.value = res.result
 }
 
