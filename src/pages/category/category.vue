@@ -5,6 +5,7 @@ import type { CategoryTopItem } from '@/types/category'
 import type { BannerItem } from '@/types/home'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
+import pageSceleton from './components/pageSceleton.vue'
 
 // 获取轮播图数据
 const bannerList = ref<BannerItem[]>([])
@@ -22,10 +23,12 @@ const getCategoryTopData = async () => {
   categoryList.value = res.result
 }
 
-onLoad(() => {
-  // 页面加载时获取轮播图数据
-  getHomeBannerDATA()
-  getCategoryTopData()
+// 页面未加载完毕时显示骨架屏
+const isFinshed = ref(false)
+
+onLoad(async () => {
+  await Promise.all([getHomeBannerDATA(), getCategoryTopData()])
+  isFinshed.value = true // 数据加载完毕，隐藏骨架屏
 })
 
 // 根据选中项，动态刷新二级页面数据
@@ -35,7 +38,7 @@ const subCategoryList = computed(() => {
 </script>
 
 <template>
-  <view class="viewport">
+  <view class="viewport" v-if="isFinshed">
     <!-- 搜索框 -->
     <view class="search">
       <view class="input">
@@ -86,6 +89,7 @@ const subCategoryList = computed(() => {
       </scroll-view>
     </view>
   </view>
+  <page-sceleton v-else />
 </template>
 
 <style lang="scss">
