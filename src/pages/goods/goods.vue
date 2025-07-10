@@ -3,6 +3,7 @@ import { getGoodsByIdAPI } from '@/services/goods'
 import type { GoodsResult } from '@/types/goods'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
+import pageSceleton from './components/pageSceleton.vue'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -34,14 +35,19 @@ const onTapImage = (url: string) => {
   })
 }
 
+// 骨架屏显示判断
+const isFinished = ref(false)
+
 // 页面加载
-onLoad(() => {
-  getGoodsByIdData()
+onLoad(async () => {
+  await getGoodsByIdData()
+  isFinished.value = true // 数据加载完毕，隐藏骨架屏
 })
 </script>
 
 <template>
-  <scroll-view scroll-y class="viewport">
+  <!-- 页面内容 -->
+  <scroll-view v-if="isFinished" scroll-y class="viewport">
     <!-- 基本信息 -->
     <view class="goods">
       <!-- 商品主图 -->
@@ -131,6 +137,8 @@ onLoad(() => {
       </view>
     </view>
   </scroll-view>
+  <!-- 骨架屏 -->
+  <page-sceleton v-else />
 
   <!-- 用户操作 -->
   <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
