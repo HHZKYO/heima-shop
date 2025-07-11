@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { postLoginWxMinAPI, postLoginWxMinSimpleAPI } from '@/services/login'
+import { useMemberStore } from '@/stores'
+import type { LoginResult } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 
 //
@@ -21,21 +23,30 @@ const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
     encryptedData,
     iv,
   })
-  console.log('登录结果', res)
-  uni.showToast({
-    title: '登录成功',
-    icon: 'none',
-  })
+  loginSuccess(res.result)
 }
 
 // 模拟手机号码快捷登录（练习的写法）
 const onGetPhoneNumberSimple = async () => {
   const res = await postLoginWxMinSimpleAPI('18813924538')
-  console.log(res)
+  loginSuccess(res.result)
+}
+
+// 登录成功逻辑
+const loginSuccess = (data: LoginResult) => {
+  // 登录成功后保存用户信息或到Store中
+  const memberStore = useMemberStore()
+  memberStore.setProfile(data)
   uni.showToast({
     title: '登录成功',
-    icon: 'none',
+    icon: 'success',
   })
+  setTimeout(() => {
+    // 登录成功后跳转到“我的”页面,因为是跳转到TabBar页面，所以使用switchTab
+    uni.switchTab({
+      url: '/pages/my/my',
+    })
+  }, 500)
 }
 </script>
 
