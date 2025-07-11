@@ -34,6 +34,7 @@ const getHomeHotData = async () => {
   hotList.value = res.result
 }
 
+// 猜你喜欢组合式函数
 const { guessRef, onScrolltolower } = useGuessList()
 
 // 下拉刷新
