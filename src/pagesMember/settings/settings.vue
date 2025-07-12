@@ -1,11 +1,28 @@
 <script setup lang="ts">
-//
+import { useMemberStore } from '@/stores'
+
+const memberStore = useMemberStore()
+// 退出登录
+const logout = () => {
+  uni.showModal({
+    title: '提示',
+    content: '确定要退出登录吗？',
+    success: (res) => {
+      if (res.confirm) {
+        // 清除用户信息
+        memberStore.clearProfile()
+        // 跳转到登录页，delta=1表示返回上一页
+        uni.navigateBack({ delta: 1 })
+      }
+    },
+  })
+}
 </script>
 
 <template>
   <view class="viewport">
     <!-- 列表1 -->
-    <view class="list" v-if="true">
+    <view class="list" v-if="memberStore.profile">
       <navigator url="/pagesMember/address/address" hover-class="none" class="item arrow">
         我的收货地址
       </navigator>
@@ -21,8 +38,8 @@
       <navigator hover-class="none" class="item arrow" url=" ">关于小兔鲜儿</navigator>
     </view>
     <!-- 操作按钮 -->
-    <view class="action">
-      <view class="button">退出登录</view>
+    <view class="action" v-if="memberStore.profile">
+      <view class="button" @tap="logout">退出登录</view>
     </view>
   </view>
 </template>
