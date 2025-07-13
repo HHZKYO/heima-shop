@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { getMemberProfileAPI } from '@/services/profile'
+import { getMemberProfileAPI, putMemberProfileAPI } from '@/services/profile'
+import { useMemberStore } from '@/stores'
 import type { ProfileDetail } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
@@ -8,7 +9,7 @@ import { ref } from 'vue'
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 // 获取用户信息
-const profile = ref<ProfileDetail>()
+const profile = ref({} as ProfileDetail)
 const getMemberProfileData = async () => {
   const res = await getMemberProfileAPI()
   profile.value = res.result
@@ -17,6 +18,9 @@ const getMemberProfileData = async () => {
 onLoad(() => {
   getMemberProfileData()
 })
+
+// 获取Store中的用户信息
+const memberStore = useMemberStore()
 
 // 修改头像
 const onAvatarChange = () => {
@@ -39,17 +43,23 @@ const onAvatarChange = () => {
             // 当前页面更新头像
             profile.value!.avatar = avatar
             // 更新 Store 头像
-            // memberStore.profile!.avatar = avatar // [!code ++]
+            memberStore.profile!.avatar = avatar
             uni.showToast({ title: '头像上传成功', icon: 'success' })
           } else {
             uni.showToast({ title: '头像上传失败', icon: 'error' })
           }
-          console.log('头像上传成功', res.data)
         },
       })
-      console.log(res)
     },
   })
+}
+
+// 提交表单
+const onSubmit = async () => {
+  const res = await putMemberProfileAPI({
+    nickname: profile.value?.nickname,
+  })
+  uni.showToast({ icon: 'success', title: '保存成功' })
 }
 </script>
 
@@ -77,7 +87,7 @@ const onAvatarChange = () => {
         </view>
         <view class="form-item">
           <text class="label">昵称</text>
-          <input class="input" type="text" placeholder="请填写昵称" :value="profile?.nickname" />
+          <input class="input" type="text" placeholder="请填写昵称" v-model="profile!.nickname" />
         </view>
         <view class="form-item">
           <text class="label">性别</text>
@@ -118,7 +128,7 @@ const onAvatarChange = () => {
         </view>
       </view>
       <!-- 提交按钮 -->
-      <button class="form-button">保 存</button>
+      <button @tap="onSubmit" class="form-button">保 存</button>
     </view>
   </view>
 </template>
