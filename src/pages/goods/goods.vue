@@ -113,9 +113,9 @@ const selectArrText = computed(() => {
   return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
 })
 // 加入购物车操作
-const onCart = (ev: SkuPopupEvent) => {
+const onCart = async (ev: SkuPopupEvent) => {
   // 调用接口
-  postMemberCartAPI({ skuId: ev._id, count: ev.buy_num })
+  await postMemberCartAPI({ skuId: ev._id, count: ev.buy_num })
   // 成功提示
   uni.showToast({
     title: '已加入购物车',
