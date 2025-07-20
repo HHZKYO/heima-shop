@@ -7,9 +7,11 @@ import pageSceleton from './components/pageSceleton.vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import type {
+  SkuPopupEvent,
   SkuPopupInstanceType,
   SkuPopupLocaldata,
 } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
+import { postMemberCartAPI } from '@/services/cart'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -110,6 +112,18 @@ const skuPopupRef = ref<SkuPopupInstanceType>()
 const selectArrText = computed(() => {
   return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
 })
+// 加入购物车操作
+const onCart = (ev: SkuPopupEvent) => {
+  // 调用接口
+  postMemberCartAPI({ skuId: ev._id, count: ev.buy_num })
+  // 成功提示
+  uni.showToast({
+    title: '已加入购物车',
+    icon: 'success',
+  })
+  // 关闭SKU组件
+  isShowSku.value = false
+}
 </script>
 
 <template>
@@ -126,6 +140,7 @@ const selectArrText = computed(() => {
       borderColor: '#27BA9B',
       backgroundColor: '#E9F8F5',
     }"
+    @cart="onCart"
   />
   <!-- 页面内容 -->
   <scroll-view v-if="isFinished" scroll-y class="viewport">
