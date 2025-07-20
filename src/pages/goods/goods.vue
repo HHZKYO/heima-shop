@@ -2,11 +2,14 @@
 import { getGoodsByIdAPI } from '@/services/goods'
 import type { GoodsResult } from '@/types/goods'
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import pageSceleton from './components/pageSceleton.vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
-import type { SkuPopupLocaldata } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
+import type {
+  SkuPopupInstanceType,
+  SkuPopupLocaldata,
+} from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -20,7 +23,7 @@ const query = defineProps<{
 const goods = ref<GoodsResult>()
 const getGoodsByIdData = async () => {
   const res = await getGoodsByIdAPI(query.id)
-  console.log('商品详情数据', res)
+  // console.log('商品详情数据', res)
   goods.value = res.result
   // 基于后端返回的商品详情信息，处理成SKU组件需要的格式
   localdata.value = {
@@ -101,6 +104,12 @@ const openSkuPopup = (data: SkuMode) => {
   isShowSku.value = true
   mode.value = data
 }
+// 获取组件实例
+const skuPopupRef = ref<SkuPopupInstanceType>()
+// 计算被选中的值
+const selectArrText = computed(() => {
+  return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
+})
 </script>
 
 <template>
@@ -111,6 +120,12 @@ const openSkuPopup = (data: SkuMode) => {
     :mode="mode"
     add-cart-background-color="#FFA868"
     buy-now-background-color="#27BA9B"
+    ref="skuPopupRef"
+    :actived-style="{
+      color: '#27BA9B',
+      borderColor: '#27BA9B',
+      backgroundColor: '#E9F8F5',
+    }"
   />
   <!-- 页面内容 -->
   <scroll-view v-if="isFinished" scroll-y class="viewport">
@@ -144,7 +159,7 @@ const openSkuPopup = (data: SkuMode) => {
       <view class="action">
         <view @tap="openSkuPopup(SkuMode.Both)" class="item arrow">
           <text class="label">选择</text>
-          <text class="text ellipsis"> 请选择商品规格 </text>
+          <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
         <view class="item arrow" @tap="openPopup('address')">
           <text class="label">送至</text>
