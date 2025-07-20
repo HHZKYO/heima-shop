@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import pageSceleton from './components/pageSceleton.vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
+import type { SkuPopupLocaldata } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -19,8 +20,33 @@ const query = defineProps<{
 const goods = ref<GoodsResult>()
 const getGoodsByIdData = async () => {
   const res = await getGoodsByIdAPI(query.id)
-  // console.log('商品详情数据', res)
+  console.log('商品详情数据', res)
   goods.value = res.result
+  // 基于后端返回的商品详情信息，处理成SKU组件需要的格式
+  localdata.value = {
+    _id: res.result.id,
+    name: res.result.name,
+    goods_thumb: res.result.mainPictures[0], // 商品主图
+    // sku商品规格字段
+    spec_list: res.result.specs.map((item) => {
+      return {
+        name: item.name,
+        list: item.values,
+      }
+    }),
+    // sku商品列表
+    sku_list: res.result.skus.map((item) => {
+      return {
+        _id: item.id,
+        goods_id: res.result.id,
+        goods_name: res.result.name,
+        image: item.picture,
+        price: item.price * 100,
+        stock: item.inventory,
+        sku_name_arr: item.specs.map((spec) => spec.valueName),
+      }
+    }),
+  }
 }
 
 // 轮播图切换时显示轮播图下标
@@ -58,9 +84,16 @@ onLoad(async () => {
   await getGoodsByIdData()
   isFinished.value = true // 数据加载完毕，隐藏骨架屏
 })
+
+// 控制SKU组件打开/关闭
+const isShowSku = ref(false)
+//商品信息
+const localdata = ref({} as SkuPopupLocaldata)
 </script>
 
 <template>
+  <!-- SKU组件 -->
+  <vk-data-goods-sku-popup v-model="isShowSku" :localdata="localdata" />
   <!-- 页面内容 -->
   <scroll-view v-if="isFinished" scroll-y class="viewport">
     <!-- 基本信息 -->
@@ -91,7 +124,7 @@ onLoad(async () => {
 
       <!-- 操作面板 -->
       <view class="action">
-        <view class="item arrow">
+        <view @tap="isShowSku = true" class="item arrow">
           <text class="label">选择</text>
           <text class="text ellipsis"> 请选择商品规格 </text>
         </view>
